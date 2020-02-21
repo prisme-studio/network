@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+package network.messages;
+
+message Endpoint {
+	string name = 1;
+	string type = 2;
+}
+
+message Ping {
+	uint64 time = 1;
+}
+
+message Datagram {
+	uint64 type = 1;
+	google.protobuf.Any data = 100;
+}
+
+//enum Datagram Type {
+//	// 0 -> 9 Reserved type values
+//	UNDEFINED 			= 0;		// Compatibility purposes connection
+//	PING 				= 5;		// Ping command
+//	PONG 				= 6;		// Pong response
+//	CLOSE 				= 9;		// Tell other side to close the
+//}

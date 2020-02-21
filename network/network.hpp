@@ -6,17 +6,23 @@
 //  Copyright © 2020 Perihelion. All rights reserved.
 //
 
-#ifndef network_
-#define network_
+#ifndef network_h
+#define network_h
 
-/* The classes below are exported */
-#pragma GCC visibility push(default)
+namespace network {
 
-class network
-{
-    public:
-    void HelloWorld(const char *);
+using NetworkPort = unsigned short int;
+
+// MARK: Advertiser
+constexpr unsigned short int advertiserRate = 1; // Advertise every X seconds
+
+enum datagramType: unsigned int {
+	undefined	= 0,		//
+	ping		= 5,		// Ping command
+	pong		= 6,		// Ping response
+	close		= 9,		// Tell other side the connection is closing
 };
 
-#pragma GCC visibility pop
-#endif
+} /* ::network */
+
+#endif /* network_h */
