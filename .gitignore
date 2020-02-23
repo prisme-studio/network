@@ -1,0 +1,3 @@
+# Ignore Protobuf-generated files
+network/Messages/*.cc
+network/Messages/*.h
