@@ -51,6 +51,7 @@
 		3909F82623FC84670004D682 /* libprotobuf.22.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libprotobuf.22.dylib; path = ../../../../../../usr/local/Cellar/protobuf/3.11.3/lib/libprotobuf.22.dylib; sourceTree = "<group>"; };
 		3909F82A23FC84800004D682 /* libboost_program_options.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_program_options.dylib; path = ../../../../../../usr/local/Cellar/boost/1.71.0/lib/libboost_program_options.dylib; sourceTree = "<group>"; };
 		3909F87923FC8E7D0004D682 /* libcommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = libcommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		397B3F75240196CF005AD8A9 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		397FEFDF23FC582000EFC203 /* libnetwork.a */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libnetwork.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		397FEFF423FC588700EFC203 /* BaseServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaseServer.cpp; sourceTree = "<group>"; };
 		397FEFF623FC588700EFC203 /* SocketStatus.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SocketStatus.hpp; sourceTree = "<group>"; };
@@ -99,6 +100,7 @@
 		397FEFD623FC582000EFC203 = {
 			isa = PBXGroup;
 			children = (
+				397B3F75240196CF005AD8A9 /* .gitignore */,
 				397FEFE123FC582000EFC203 /* network */,
 				397FEFE023FC582000EFC203 /* Products */,
 				3909F81523FC6EBE0004D682 /* Frameworks */,

@@ -27,9 +27,16 @@ void Browser::startBrowsing(const NetworkPort &port) {
 
 	_socket->open(asio::ip::udp::v4());
 	_socket->set_option(asio::socket_base::broadcast(true));
+	_socket->set_option(asio::socket_base::reuse_address(true));
 
 	// Open the socket
-	_socket->bind(_anyEndpoint);
+	boost::system::error_code error;
+	_socket->bind(_anyEndpoint, error);
+
+	if(error) {
+		LOG_ERROR("Could not start browser on port " + std::to_string(port) + ": " + error.message());
+		return;
+	}
 
 	// Bind the handler
 	_socket->async_receive_from(asio::buffer(_receptionBuffer), _anyEndpoint, [&] (const boost::system::error_code &error, std::size_t bytes_transferred) {

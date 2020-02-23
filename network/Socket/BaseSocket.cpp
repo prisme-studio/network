@@ -177,14 +177,13 @@ void BaseSocket::sendAsync(const google::protobuf::Message * message) {
 	// Send the datagram
 	_socket.async_write_some(outputBuffer.data(), [&] (const boost::system::error_code &error, std::size_t bytes_transferred) {
 
+		_sendMutex.unlock();
+
 		if(error) {
 			LOG_ERROR("An error occured while sending data asynchronously");
 			LOG_ERROR(error.message());
-
 			close();
 		}
-
-		_sendMutex.unlock();
 	});
 }
 

@@ -105,8 +105,8 @@ protected:
 		datagramType dType = static_cast<datagramType>(datagram->type());
 
 		// Make sure the parcel is really for us. Tracker datagrams numbers are comprised between 0-100 (Common) and 100-200 (Tracker)
-		if(dType < 10 || dType >= 20) {
-			// This datagram isn't for us
+		if(dType >= 10) {
+			// Propagate message to delegate
 			if(delegate)
 				return delegate->socketDidReceive(this, datagram);
 
@@ -114,6 +114,7 @@ protected:
 			return;
 		}
 
+		// System message
 		switch(dType) {
 			case datagramType::close:
 				close();
