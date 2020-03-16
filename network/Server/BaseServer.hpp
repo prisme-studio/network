@@ -14,13 +14,13 @@
 #include "../Discovery/Advertiser.hpp"
 
 namespace asio = boost::asio;
-
 namespace protobuf = google::protobuf;
 
 namespace network {
 
 // Forward Declaration
 class BaseSocket;
+class ServerDelegate;
 
 /// A Server allows for building services and making them accessible to others on the
 /// network.
@@ -64,11 +64,15 @@ protected:
 
 	virtual void socketDidClose(BaseSocket * socket) override;
 
+	virtual void socketDidSendAsynchronously(BaseSocket *, const protobuf::Message *) override;
+
 public:
 
 	~BaseServer();
 
 	// MARK: - Properties
+
+	ServerDelegate * delegate;
 
 	/// Tell if the server is running
 	/// @return True if running, false otherwise
@@ -98,6 +102,8 @@ private:
 	bool _isRunning = false;
 
 	SocketFormat _emissionFormat = SocketFormat::protobuf;
+
+	unsigned short _sendCount = 0;
 
 	/// The acceptor used to accept incoming connections
 	asio::ip::tcp::acceptor * _acceptor = nullptr;

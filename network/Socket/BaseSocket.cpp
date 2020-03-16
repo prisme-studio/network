@@ -85,7 +85,7 @@ BaseSocket::~BaseSocket() {
 
 	// Make sure the socket is properly closed
 	_receiveMutex.lock();
-	_sendMutex.lock();
+	_sendSyncMutex.lock();
 
 	close();
 }
@@ -137,7 +137,7 @@ void BaseSocket::onError() {
 // MARK: - Emission
 
 void BaseSocket::sendSync(const google::protobuf::Message * message) {
-	_sendMutex.lock();
+	_sendSyncMutex.lock();
 
 	// Send the message to the output buffer (through the outputStream)
 	formatMessageToStream(message, _outputStream);
@@ -154,7 +154,7 @@ void BaseSocket::sendSync(const google::protobuf::Message * message) {
 		LOG_ERROR("An error occured while sending data synchronously");
 		LOG_ERROR(error.message());
 
-		_sendMutex.unlock();
+		_sendSyncMutex.unlock();
 		close();
 		return;
 	}
@@ -162,28 +162,58 @@ void BaseSocket::sendSync(const google::protobuf::Message * message) {
 	// Clear the buffer
 	_outputBuffer.consume(_outputBuffer.size());
 
-	_sendMutex.unlock();
+	_sendSyncMutex.unlock();
 }
 
 void BaseSocket::sendAsync(const google::protobuf::Message * message) {
-	// Default output buffer is not used as output buffer must be preserved valid on async calls
+	// Queue a copy of the message
+	_asyncQueue.enqueue(message);
+
+	// Execute send
+	sendAsyncInternal();
+}
+
+void BaseSocket::sendAsyncInternal() {
+	// Are we already sending something ?
+	if(_isAsyncSending) {
+		// Yes, do nothing
+		return;
+	}
+
+	_isAsyncSending = true;
+
+	// Get next message to send
+	const protobuf::Message * message;
+
+	if(!_asyncQueue.try_dequeue(message)) {
+		_isAsyncSending = false;
+		return;
+	}
+
+	// Default output buffer is not used for async call and must be preserved valid for sync calls
 	asio::streambuf outputBuffer;
 	std::ostream outputStream(&outputBuffer);
 
+	// Put the message in the buffer
 	formatMessageToStream(message, outputStream);
-
-	_sendMutex.lock();
 
 	// Send the datagram
 	_socket.async_write_some(outputBuffer.data(), [&] (const boost::system::error_code &error, std::size_t bytes_transferred) {
 
-		_sendMutex.unlock();
+		// Tell the delegate the message is sent
+		if(delegate)
+			delegate->socketDidSendAsynchronously(this, message);
 
 		if(error) {
 			LOG_ERROR("An error occured while sending data asynchronously");
 			LOG_ERROR(error.message());
+			_isAsyncSending = false;
 			close();
+			return;
 		}
+
+		_isAsyncSending = false;
+		sendAsyncInternal();
 	});
 }
 

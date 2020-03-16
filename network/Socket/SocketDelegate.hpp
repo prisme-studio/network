@@ -26,7 +26,11 @@ public:
 	/// Called everytime the socket received a datagram from the
 	/// network. Some datagram with Socket-specific types, such as
 	/// 'close' might not be propagated to this method.
-	virtual void socketDidReceive(BaseSocket *, google::protobuf::Message *) {}
+	virtual void socketDidReceive(BaseSocket *, const google::protobuf::Message *) {}
+
+	/// Called everytime the socket finished sending a message asynchronously.
+	/// This can be used to free the memory used by the message
+	virtual void socketDidSendAsynchronously(BaseSocket *, const google::protobuf::Message *) {}
 
 	/// Called when the socket disconnects/closes
 	///

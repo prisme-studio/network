@@ -9,6 +9,7 @@
 #include <common/log.hpp>
 
 #include "BaseServer.hpp"
+#include "ServerDelegate.hpp"
 
 #include "../Socket/BaseSocket.hpp"
 #include "../Engine.hpp"
@@ -40,6 +41,7 @@ void BaseServer::open() {
 }
 
 void BaseServer::sendToAll(protobuf::Message * aMessage) {
+	_sendCount = _connections.size();
 	for(BaseSocket * s: _connections) {
 		s->send(aMessage);
 	}
@@ -55,6 +57,14 @@ void BaseServer::socketDidClose(BaseSocket * socket) {
 	_connections.erase(std::find(_connections.begin(), _connections.end(), socket));
 
 	delete socket;
+}
+void BaseServer::socketDidSendAsynchronously(BaseSocket *, const protobuf::Message * message) {
+	if(--_sendCount > 0)
+		return;
+
+	// send count is empty, tell delegate
+	if(delegate)
+		delegate->serverDidSendToAll(this, message);
 }
 
 void BaseServer::prepareAccept() {

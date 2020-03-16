@@ -19,6 +19,8 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/util/json_util.h>
 
+#include "../third-parties/concurrentqueue.h"
+
 #include <common/log.hpp>
 
 #include "SocketStatus.hpp"
@@ -43,7 +45,7 @@ public:
 
 	BaseSocket(): _outputStream(&_outputBuffer) {}
 
-	SocketDelegate * delegate = nullptr;
+	SocketDelegate * delegate;
 
 	// MARK: - Lifecycle
 
@@ -131,7 +133,7 @@ private:
 	SocketStatus _status = SocketStatus::idle;
 
 	/// The socket emission type
-	EmissionType _emissionType = EmissionType::sync;
+	EmissionType _emissionType = EmissionType::async;
 
 	/// The remote endpoint this socket is connected to. Irrelevant if the
 	/// socket status isn't `SocketStatus::ready`
@@ -143,7 +145,11 @@ private:
 	asio::deadline_timer _timer = asio::deadline_timer(Engine::instance()->getContext());
 
 	/// Mutex protecting from send errors
-	std::mutex _sendMutex;
+	std::mutex _sendSyncMutex;
+
+	std::atomic<bool> _isAsyncSending;
+
+	moodycamel::ConcurrentQueue<const protobuf::Message *> _asyncQueue;
 
 	/// Mutex protecting from receive errors
 	std::mutex _receiveMutex;
@@ -154,6 +160,8 @@ private:
 	/// Synchronous send output stream
 	std::ostream _outputStream;
 
+public:
+
 	/// Send a message to the server synchronously.
 	/// @param message The message to send
 	void sendSync(const protobuf::Message * message);
@@ -162,6 +170,8 @@ private:
 	void sendAsync(const protobuf::Message * message);
 
 protected:
+
+	void sendAsyncInternal();
 
 	/// Format the given message in the format defined by `getFormat()` and put it in the given `std::ostream`;
 	/// @param message The message to format
